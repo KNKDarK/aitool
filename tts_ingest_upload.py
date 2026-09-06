@@ -42,9 +42,28 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://api.corpus.swecha.org/api/v1")
 DEFAULT_LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "te")
 MIN_UPLOAD_DURATION_SECONDS = 5.1
 
-# Credentials
-USER_PHONE = os.getenv("USER_PHONE", "REDACTED")
-USER_PASSWORD = os.getenv("USER_PASSWORD", "REDACTED")
+
+def _load_dotenv(path: str = ".env") -> None:
+    """Load KEY=VALUE pairs from a simple .env file into os.environ (never override)."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                os.environ.setdefault(key.strip(), value.strip())
+    except FileNotFoundError:
+        pass
+
+
+_load_dotenv()
+
+# Credentials — supplied via environment (.env) only, never hardcoded in source.
+USER_PHONE = os.getenv("USER_PHONE")
+USER_PASSWORD = os.getenv("USER_PASSWORD")
+if not USER_PHONE or not USER_PASSWORD:
+    raise SystemExit("USER_PHONE and USER_PASSWORD must be set in the environment or .env")
 
 # Pipeline settings
 GOAL_TOTAL = 2000          # Total target
